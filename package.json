@@ -23,9 +23,8 @@
     "@babel/core": "^7.4.3",
     "@babel/node": "^7.2.2",
     "@babel/preset-env": "^7.4.3",
-    "chai": "^4.2.0",
-    "mocha": "^6.1.4",
-    "nodemon": "^1.18.11"
+    "nodemon": "^1.18.11",
+    "supertest": "^4.0.2"
   },
   "dependencies": {
     "body-parser": "^1.18.3",

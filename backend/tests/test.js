@@ -1,21 +1,28 @@
-const expect = require('chai').expect;
+const request = require('supertest');
 import server from '../src/server';
 
-let req = {
-    body: {},
-}
-
-let res = {
-    sendCalledWith: '',
-    send: function(arg) {
-        this.sendCalledWith = arg;
-    }
-};
-
 describe('Products', function() {
-    describe('Get Products', function() {
-        it('Should return a list of all products', function() {
-            //
-        });
+    let server;
+
+    beforeEach(function() {
+        server = require('../src/server');
     });
+
+    after(function (done) {
+        server.close(done);
+    });
+
+    it('responds to /status', function testHealth(done) {
+        request(server)
+            .get('/status')
+            .expect(200, done);
+    });
+
+    it('responds to GET /products', function testGet(done) {
+        request(server)
+            .get('/products')
+            .set('Accept', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(200, done);
+    })
 });
