@@ -1,0 +1,30 @@
+{
+  "name": "product-scraper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-api": "nodemon api/start.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theo-ng/product-scraper.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/theo-ng/product-scraper/issues"
+  },
+  "homepage": "https://github.com/theo-ng/product-scraper#readme",
+  "devDependencies": {
+    "@babel/core": "^7.4.3",
+    "@babel/node": "^7.2.2"
+  },
+  "dependencies": {
+    "express": "^4.16.4",
+    "express-healthcheck": "^0.1.0",
+    "morgan": "^1.9.1"
+  }
+}

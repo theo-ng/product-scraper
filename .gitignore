@@ -1,0 +1,14 @@
+/node_modules
+npm-debug.log*
+
+###VSCode###
+.vscode/
+slnx.sqlite
+
+###OSX###
+
+.DS_Store
+.AppleDouble
+.LSOverride
+
+.env
