@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import cors from 'cors';
-import { getProducts, addProduct, updateProduct, deleteProduct } from './products/index';
+import { getAllProducts, addProduct, updateProduct, deleteProduct } from './products/index';
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -16,7 +16,7 @@ app.use(cors());
 
 app.use('/status', require('express-healthcheck')());
 
-app.get('/products', getProducts);
+app.get('/products', getAllProducts);
 // app.post('/products/', addProduct);
 // app.put('/products/:asin', updateProduct);
 // app.delete('/products/:asin', deleteProduct);
@@ -25,4 +25,4 @@ const server = app.listen(port, function() {
     console.log(`API is listening on port ${port}`);
 });
 
-export default server;
+module.exports = server;
