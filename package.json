@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "api-test": "mocha ./backend/tests --recursive",
+    "api-test": "mocha ./backend/tests --recursive --require @babel/register",
     "start-api": "nodemon --exec babel-node backend/start.js"
   },
   "repository": {
@@ -23,16 +23,20 @@
     "@babel/core": "^7.4.3",
     "@babel/node": "^7.2.2",
     "@babel/preset-env": "^7.4.3",
+    "mocha": "^6.1.4",
     "nodemon": "^1.18.11",
     "supertest": "^4.0.2"
   },
   "dependencies": {
+    "async": "^2.6.2",
     "body-parser": "^1.18.3",
+    "cheerio": "^1.0.0-rc.3",
     "cors": "^2.8.5",
     "dotenv": "^7.0.0",
     "express": "^4.16.4",
     "express-healthcheck": "^0.1.0",
     "morgan": "^1.9.1",
-    "pg": "^7.10.0"
+    "pg": "^7.10.0",
+    "request": "^2.88.0"
   }
 }

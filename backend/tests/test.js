@@ -1,5 +1,4 @@
 const request = require('supertest');
-import server from '../src/server';
 
 describe('Products', function() {
     let server;

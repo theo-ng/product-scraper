@@ -9,13 +9,8 @@ const pool = new Pool({
     port: 5432,
 });
 
-const getProducts = (req, res) => {
-    pool.query('SELECT * FROM products ORDER BY lastUpdated DESC', (err, results) => {
-        if (err) {
-            throw err
-        }
-        res.status(200).json(results.rows);
-    });
+const getProducts = (callback) => {
+    pool.query('SELECT * FROM products ORDER BY lastUpdated DESC', callback);
 }
 
 const createProduct = (req, res) => {
