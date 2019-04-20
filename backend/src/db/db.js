@@ -12,18 +12,13 @@ const getProducts = (callback) => {
     pool.query('SELECT * FROM products ORDER BY lastUpdated DESC', callback);
 }
 
-const createProduct = (req, res) => {
-    const { asin, category, rank, dimensions } = req.body;
+const createProduct = (product, callback) => {
+    const { asin, category, rank, dimensions } = product;
 
     pool.query(
         'INSERT INTO products (asin, category, rank, dimensions) VALUES ($1, $2, $3, $4)',
         [asin, category, rank, dimensions],
-        (err, results) => {
-            if (err) {
-                throw err;
-            }
-            res.status(201).send(`Product added with ASIN: ${asin}`);
-        }
+        callback
     );
 }
 

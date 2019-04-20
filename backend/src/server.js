@@ -17,7 +17,7 @@ app.use(cors());
 app.use('/status', require('express-healthcheck')());
 
 app.get('/products', getAllProducts);
-// app.post('/products/', addProduct);
+app.post('/products/', addProduct);
 // app.put('/products/:asin', updateProduct);
 // app.delete('/products/:asin', deleteProduct);
 
