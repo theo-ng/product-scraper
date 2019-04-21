@@ -1,18 +1,27 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import _get from 'lodash.get';
+import './App.css';
+import moment from 'moment-timezone';
 
 class App extends Component {
     state = {
         products: [],
-        error: {},
+        error: '',
+        asin: '',
+        loading: false,
     }
 
     componentDidMount() {
         this._getProducts();
     }
 
+    _handleInputChange = (e) => {
+        this.setState({ asin: e.target.value });
+    }
+
     _getProducts = async () => {
+        this.setState({ loading: true });
         try {
             const data = await axios({
                 method: 'get',
@@ -20,9 +29,15 @@ class App extends Component {
             });
 
             if (_get(data, 'data.status') === 'Fail') {
-                this.setState({ error: 'Error getting history'});
+                this.setState({
+                    error: 'Error getting history',
+                    loading: false,
+                });
             } else {
-                this.setState({ products: data.data });
+                this.setState({
+                    products: data.data,
+                    loading: false,
+                });
             }
         } catch (res) {
             this.setState({ error: 'Error connecting to server'});
@@ -30,15 +45,22 @@ class App extends Component {
     };
 
     _searchForAsin = async () => {
+        const { asin } = this.state;
+
+        this.setState({ loading: true });
+
         try {
             const result = await axios({
                 method: 'post',
                 url: 'http://localhost:8080/products',
-                data: { asin: this._asin }
+                data: { asin }
             });
 
             if (_get(result, 'data.status') === 'Fail') {
-                this.setState({ error: 'Error getting product information'});
+                this.setState({
+                    error: 'Error getting product information',
+                    loading: false,
+                });
             } else {
                 this._getProducts();
             }
@@ -48,37 +70,56 @@ class App extends Component {
     }
 
     render() {
-        const { products } = this.state;
+        const { products, loading, error } = this.state;
 
         return (
-            <div>
+            <div className="app">
+                <h2>Amazon Product Scraper</h2>
                 <div className="search">
-                    <label>ASIN:</label>
-                    <input
-                        ref={(asin) => {
-                            this._asin = asin;
-                        }}
-                    />
-                    <button onClick={this._searchForAsin}>Search</button>
+                    {loading
+                        ? <p>Processing...</p>
+                        : [
+                            <label>ASIN:</label>,
+                            <input
+                                onChange={this._handleInputChange}
+                                ref={(asin) => {
+                                    this._asin = asin;
+                                }}
+                            />,
+                            <button onClick={this._searchForAsin}>Search</button>
+                        ]
+                    }
                 </div>
+                {error &&
+                    <div className="error">{error}</div>
+                }
                 <div className="product-table">
                     <div className="headers">
-                        <span>ASIN</span>
-                        <span>Category</span>
-                        <span>Rank</span>
-                        <span>Dimensions</span>
-                        <span>Last Updated</span>
+                        <h4 className="asin">ASIN</h4>
+                        <h4 className="cat">Category</h4>
+                        <h4 className="rank">Rank</h4>
+                        <h4 className="dim">Dimensions</h4>
+                        <h4 className="timestamp">Last Updated</h4>
                     </div>
-                    {products.length > 0 &&
-                        products.map((product) => (
-                            <div className="product-row">
-                                <span>{product.asin}</span>
-                                <span>{product.category}</span>
-                                <span>{product.rank}</span>
-                                <span>{product.dimensions}</span>
-                                <span>{product.lastupdated}</span>
+                    {products.length > 0
+                        ? products.map((product) => (
+                            <div className="product-row" key={product.asin}>
+                                <span className="asin">{product.asin}</span>
+                                <span className="cat">{product.category}</span>
+                                <span className="rank">{product.rank}</span>
+                                <span className="dim">{product.dimensions}</span>
+                                <span className="timestamp">{moment(product.lastupdated).format('LLL')}</span>
                             </div>
                         ))
+                        : (
+                            <div className="product-row">
+                                <span className="asin">N/A</span>
+                                <span className="cat">N/A</span>
+                                <span className="rank">N/A</span>
+                                <span className="dim">N/A</span>
+                                <span className="timestamp">N/A</span>
+                            </div>
+                        )
                     }
                 </div>
             </div>
