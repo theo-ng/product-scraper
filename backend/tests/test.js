@@ -40,10 +40,7 @@ describe('Products', function() {
             .expect('Content-Type', /json/)
             .expect(201)
             .end((err) => {
-                if (err) {
-                    return done(err);
-                }
-                done();
+                done(err);
             });
     });
 });

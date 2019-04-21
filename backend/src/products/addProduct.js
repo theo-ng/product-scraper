@@ -81,6 +81,7 @@ function _parseResponse(asin, html, callback) {
                 verbiage: 'Could not find dimensions',
             });
         }
+        return dims;
     }
 
     const category = _findCategory();
