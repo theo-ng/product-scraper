@@ -16,7 +16,10 @@ const createProduct = (product, callback) => {
     const { asin, category, rank, dimensions } = product;
 
     pool.query(
-        'INSERT INTO products (asin, category, rank, dimensions) VALUES ($1, $2, $3, $4)',
+        `INSERT INTO products (asin, category, rank, dimensions)
+        VALUES ($1, $2, $3, $4)
+        ON CONFLICT (asin)
+        DO NOTHING`,
         [asin, category, rank, dimensions],
         callback
     );

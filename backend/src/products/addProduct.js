@@ -5,7 +5,7 @@ import cheerio from 'cheerio';
 
 const BASE_URL = 'https://amazon.com/dp/';
 const RANK_REGEX = /#[\d,]+/gi;
-const DIM_REGEX = /Product Dimensions.*\s*(.*)\s{3,}/gi;
+const DIM_REGEX = /Product Dimensions.*\s*(.*inches)\s/gi;
 
 /**
  * Get HTML for Amazon product by ASIN
@@ -54,8 +54,9 @@ function _parseResponse(asin, html, callback) {
         try {
             if ($('#SalesRank').length > 0) {
                 rank = $('#SalesRank').text().match(RANK_REGEX)[0].replace(/[#,]/gi, '');
+            } else {
+                rank = $('#productDetails_detailBullets_sections1').text().match(RANK_REGEX)[0].replace(/[#,]/gi, '');
             }
-            rank = $('#productDetails_detailBullets_sections1').text().match(RANK_REGEX)[0].replace(/[#,]/gi, '');
         } catch (err) {
             callback({
                 err,
@@ -74,7 +75,7 @@ function _parseResponse(asin, html, callback) {
         }
 
         try {
-            dims = DIM_REGEX.exec($(container).text())[1]
+            dims = $(container).text().match(DIM_REGEX)[0].replace(/^.*Dimensions.*\D/gi, '').trim();
         } catch (err) {
             callback({
                 err,
