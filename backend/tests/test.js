@@ -23,5 +23,27 @@ describe('Products', function() {
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
             .expect(200, done);
-    })
+    });
+
+    it('responds to POST /products', function testPost(done) {
+        let data = {
+            asin: '123123',
+            category: 'test',
+            rank: 1,
+            dimensions: '1x1x1 inches'
+        };
+
+        request(server)
+            .post('/products')
+            .send(data)
+            .set('Accept', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(201)
+            .end((err) => {
+                if (err) {
+                    return done(err);
+                }
+                done();
+            });
+    });
 });
