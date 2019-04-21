@@ -27,7 +27,7 @@ describe('Products', function() {
 
     it('responds to POST /products', function testPost(done) {
         let data = {
-            asin: '123123',
+            asin: 'B0781Z7Y3S',
             category: 'test',
             rank: 1,
             dimensions: '1x1x1 inches'
