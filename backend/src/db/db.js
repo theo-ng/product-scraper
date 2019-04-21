@@ -31,7 +31,7 @@ const updateProduct = (req, res) => {
         [asin, category, rank, dimensions],
         (err, results) => {
             if (err) {
-                throw err;
+                console.error(err);
             }
             res.status(200).send(`Product updated with ASIN: ${asin}`);
         }
@@ -44,7 +44,7 @@ const deleteProduct = (req, res) => {
     pool.query(
         'DELETE FROM products WHERE asin = $1', [asin], (err, results) => {
             if (error) {
-                throw error;
+                console.error(error);
             }
             response.status(200).send(`Product deleted with ASIN: ${asin}`);
         }

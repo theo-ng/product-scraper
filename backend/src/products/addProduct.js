@@ -4,6 +4,8 @@ import request from 'request';
 import cheerio from 'cheerio';
 
 const BASE_URL = 'https://amazon.com/dp/';
+const RANK_REGEX = /#[\d,]+/gi;
+const DIM_REGEX = /Product Dimensions.*\s*(.*)\s{3,}/gi;
 
 /**
  * Get HTML for Amazon product by ASIN
@@ -25,32 +27,74 @@ function _requestProductByAsin(asin, callback) {
 
 /**
  * Parses the html body for useful information
+ * @param {String} asin
  * @param {String} html
  * @param {function} callback
  * @private
  */
-function _parseResponse(html, callback) {
+function _parseResponse(asin, html, callback) {
     const $ = cheerio.load(html);
 
     const _findCategory = () => {
-        return $('#wayfinding-breadcrumbs_feature_div .a-link-normal').first().text().trim();
+        let cat = '';
+        try {
+            cat = $('#wayfinding-breadcrumbs_feature_div .a-link-normal').first().text().trim();
+        } catch (err) {
+            callback({
+                err,
+                verbiage: 'Could not find category',
+            });
+        }
+        return cat;
     }
 
     const _findRank = () => {
-        return $('#SalesRank .value').text().match(/#\d+\sin[\w\s]+/gi)[0].trim();
+        let rank = '';
+
+        try {
+            if ($('#SalesRank').length > 0) {
+                rank = $('#SalesRank').text().match(RANK_REGEX)[0].replace(/[#,]/gi, '');
+            }
+            rank = $('#productDetails_detailBullets_sections1').text().match(RANK_REGEX)[0].replace(/[#,]/gi, '');
+        } catch (err) {
+            callback({
+                err,
+                verbiage: 'Could not find rank',
+            });
+        }
+        return rank;
     }
 
     const _findDimensions = () => {
-        return $('.size-weight .value').last().text();
+        let dims = '';
+        let container = '#prodDetails';
+
+        if ($(container).length === 0) {
+            container = '#detailBullets';
+        }
+
+        try {
+            dims = DIM_REGEX.exec($(container).text())[1]
+        } catch (err) {
+            callback({
+                err,
+                verbiage: 'Could not find dimensions',
+            });
+        }
     }
 
     const category = _findCategory();
     const rank = _findRank();
     const dimensions = _findDimensions();
 
-    console.log(category);
-    console.log(rank);
-    console.log(dimensions);
+    const product = {
+        asin,
+        rank,
+        category,
+        dimensions
+    };
+
+    callback(null, product);
 }
 
 export function addProduct(req, res) {
@@ -61,16 +105,16 @@ export function addProduct(req, res) {
             _requestProductByAsin(asin, next)
         },
         (html, next) => {
-            _parseResponse(html, next);
+            _parseResponse(asin, html, next);
         },
-        // (product, next) => {
-        //     createProduct(product, next);
-        // }
+        (product, next) => {
+            createProduct(product, next);
+        }
     ], (err, results) => {
         if (err) {
-            throw err;
+            console.error(err);
+            res.status(500);
         }
-        console.log('bleepbloop')
-        // res.status(201).send(`Product added with ASIN: ${asin}`);
+        res.status(201).send(`Product added with ASIN: ${asin}`);
     });
 }
