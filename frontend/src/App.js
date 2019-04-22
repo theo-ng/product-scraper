@@ -69,6 +69,25 @@ class App extends Component {
         }
     }
 
+    _removeProductHistory = async (asin) => {
+        try {
+            const result = await axios({
+                method: 'delete',
+                url: `http://localhost:8080/products/${asin}`,
+            });
+
+            if (_get(result, 'data.status') === 'Fail') {
+                this.setState({
+                    error: `Error removing product with asin: ${asin}`,
+                });
+            } else {
+                this._getProducts();
+            }
+        } catch (res) {
+            this.setState({ error: 'Error connecting to server'})
+        }
+    }
+
     render() {
         const { products, loading, error } = this.state;
 
@@ -104,15 +123,18 @@ class App extends Component {
                     {products.length > 0
                         ? products.map((product) => (
                             <div className="product-row" key={product.asin}>
-                                <span className="asin">{product.asin}</span>
-                                <span className="cat">{product.category}</span>
-                                <span className="rank">{product.rank}</span>
-                                <span className="dim">{product.dimensions}</span>
+                                <span className="asin">{product.asin || 'N/A'}</span>
+                                <span className="cat">{product.category || 'N/A'}</span>
+                                <span className="rank">{product.rank || 'N/A'}</span>
+                                <span className="dim">{product.dimensions || 'N/A'}</span>
                                 <span className="timestamp">{moment(product.lastupdated).format('LLL')}</span>
+                                <button className="delete-btn" onClick={() => this._removeProductHistory(product.asin)}>
+                                    <i className="material-icons">delete</i>
+                                </button>
                             </div>
                         ))
                         : (
-                            <div className="product-row">
+                            <div className="product-row empty">
                                 <span className="asin">N/A</span>
                                 <span className="cat">N/A</span>
                                 <span className="rank">N/A</span>

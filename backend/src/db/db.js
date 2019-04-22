@@ -18,45 +18,19 @@ const createProduct = (product, callback) => {
     pool.query(
         `INSERT INTO products (asin, category, rank, dimensions)
         VALUES ($1, $2, $3, $4)
-        ON CONFLICT (asin)
-        DO NOTHING`,
+        ON CONFLICT (asin) DO UPDATE
+        SET category = $2, rank = $3, dimensions = $4`,
         [asin, category, rank, dimensions],
         callback
     );
 }
 
-const updateProduct = (req, res) => {
-    const asin = req.params.asin;
-    const { category, rank, dimensions } = req.body;
-
-    pool.query(
-        'UPDATE products SET category = $2, rank = $3, dimensions = $4 WHERE asin = $1',
-        [asin, category, rank, dimensions],
-        (err, results) => {
-            if (err) {
-                console.error(err);
-            }
-            res.status(200).send(`Product updated with ASIN: ${asin}`);
-        }
-    );
-}
-
-const deleteProduct = (req, res) => {
-    const asin = req.params.asin;
-
-    pool.query(
-        'DELETE FROM products WHERE asin = $1', [asin], (err, results) => {
-            if (error) {
-                console.error(error);
-            }
-            response.status(200).send(`Product deleted with ASIN: ${asin}`);
-        }
-    );
+const deleteProduct = (asin, callback) => {
+    pool.query('DELETE FROM products WHERE asin = $1', [asin], callback);
 }
 
 export {
     getProducts,
     createProduct,
-    updateProduct,
     deleteProduct
 }
