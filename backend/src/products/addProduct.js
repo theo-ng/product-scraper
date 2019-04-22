@@ -75,7 +75,7 @@ function _parseResponse(asin, html, callback) {
         }
 
         try {
-            dims = $(container).text().match(DIM_REGEX)[0].replace(/^.*Dimensions.*\D/gi, '').trim();
+            dims = $(container).text().match(DIM_REGEX)[0].replace(/^.*Dimensions\D*/gi, '').trim();
         } catch (err) {
             callback({
                 err,
