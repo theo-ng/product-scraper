@@ -1,6 +1,6 @@
 import { createProduct } from '../db/db';
 import async from 'async';
-import request from 'request';
+import request from 'superagent';
 import cheerio from 'cheerio';
 
 const BASE_URL = 'https://amazon.com/dp/';
@@ -14,14 +14,15 @@ const DIM_REGEX = /Product Dimensions.*\s*(.*inches)\s/gi;
  * @private
  */
 function _requestProductByAsin(asin, callback) {
-    request(`${BASE_URL}${asin}`, (err, res, body) => {
+    request(`${BASE_URL}${asin}`).then((res) => {
+        callback(null, res);
+    }).catch(err => {
         if (err) {
             callback({
                 err,
-                verbiage: 'Error finding a product for that ASIN',
+                verbiage: err.status === 404 ? 'Invalid ASIN' : 'Error finding product',
             });
         }
-        callback(null, body);
     });
 }
 
@@ -33,17 +34,19 @@ function _requestProductByAsin(asin, callback) {
  * @private
  */
 function _parseResponse(asin, html, callback) {
-    const $ = cheerio.load(html);
+    const $ = cheerio.load(html.text);
+    let error;
 
     const _findCategory = () => {
         let cat = '';
         try {
             cat = $('#wayfinding-breadcrumbs_feature_div .a-link-normal').first().text().trim();
+            console.log('Cat:', cat);
         } catch (err) {
-            callback({
-                err,
-                verbiage: 'Could not find category',
-            });
+            error = {
+                error: err,
+                verbiage: 'Error parsing category'
+            };
         }
         return cat;
     }
@@ -57,11 +60,12 @@ function _parseResponse(asin, html, callback) {
             } else {
                 rank = $('#productDetails_detailBullets_sections1').text().match(RANK_REGEX)[0].replace(/[#,]/gi, '');
             }
+            console.log('Rank:', rank);
         } catch (err) {
-            callback({
-                err,
-                verbiage: 'Could not find rank',
-            });
+            error = {
+                error: err,
+                verbiage: 'Error parsing rank'
+            };
         }
         return rank;
     }
@@ -76,11 +80,12 @@ function _parseResponse(asin, html, callback) {
 
         try {
             dims = $(container).text().match(DIM_REGEX)[0].replace(/^.*Dimensions\D*/gi, '').trim();
+            console.log('Dims:', dims);
         } catch (err) {
-            callback({
-                err,
-                verbiage: 'Could not find dimensions',
-            });
+            error = {
+                error: err,
+                verbiage: 'Error parsing dimensions'
+            };
         }
         return dims;
     }
@@ -96,7 +101,12 @@ function _parseResponse(asin, html, callback) {
         dimensions
     };
 
+    if (error) {
+        callback(error);
+        return;
+    }
     callback(null, product);
+    return;
 }
 
 export function addProduct(req, res) {
@@ -115,8 +125,9 @@ export function addProduct(req, res) {
     ], (err, results) => {
         if (err) {
             console.error(err);
-            res.status(500);
+            res.status(500).send(err);
+        } else {
+            res.status(201).send(`Product added with ASIN: ${asin}`);
         }
-        res.status(201).send(`Product added with ASIN: ${asin}`);
     });
 }

@@ -41,7 +41,7 @@ describe('Products', function() {
             .end((err) => {
                 done(err);
             });
-    });
+    }).timeout(5000);
 
     it('responds to DELETE /products/:asin', function testDelete(done) {
         request(server)

@@ -35,12 +35,16 @@ class App extends Component {
                 });
             } else {
                 this.setState({
+                    error: '',
                     products: data.data,
                     loading: false,
                 });
             }
         } catch (res) {
-            this.setState({ error: 'Error connecting to server'});
+            this.setState({
+                error: 'Error connecting to server',
+                loading: false,
+            });
         }
     };
 
@@ -65,7 +69,10 @@ class App extends Component {
                 this._getProducts();
             }
         } catch (res) {
-            this.setState({ error: 'Error connecting to server'})
+            this.setState({
+                error: 'Error connecting to server',
+                loading: false,
+            })
         }
     }
 
@@ -84,7 +91,10 @@ class App extends Component {
                 this._getProducts();
             }
         } catch (res) {
-            this.setState({ error: 'Error connecting to server'})
+            this.setState({
+                error: 'Error connecting to server',
+                loading: false,
+            })
         }
     }
 
@@ -110,7 +120,7 @@ class App extends Component {
                     }
                 </div>
                 {error &&
-                    <div className="error">{error}</div>
+                    <p className="error">{error}</p>
                 }
                 <div className="product-table">
                     <div className="headers">
